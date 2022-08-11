@@ -53,6 +53,13 @@ criar_saldos = """CREATE TABLE `templarios`.`saldos` (
   PRIMARY KEY (`idsaldos`));
 """
 
+criar_usuarios = """CREATE TABLE `templarios`.`usuarios` (
+  `idusuarios` INT NOT NULL AUTO_INCREMENT,
+  `usuario_nome` VARCHAR(45) NULL,
+  `usuario_senha` VARCHAR(45) NULL,
+  PRIMARY KEY (`idusuarios`));
+"""
+
 cursor = con.cursor()
 cursor.execute(criar_membros)
 print ("Tabela Membros criada com sucesso!")
@@ -62,6 +69,8 @@ cursor.execute(criar_receber)
 print ("Tabela Receber criada com sucesso!")
 cursor.execute(criar_saldos)
 print ("Tabela Saldos criada com sucesso!")
+cursor.execute(criar_usuarios)
+print ("Tabela Usuarios criada com sucesso!")
 con.commit()
 
 print('Tabelas criadas com sucesso !')
