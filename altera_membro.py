@@ -6,12 +6,13 @@ from datetime import datetime
 
 con = mysql.connector.connect(host='localhost', database='templarios', user='root', password='Janete4353')
 
-nomemembro = input('Digite o nome. ')
-seleciona = "SELECT nomemembro FROM membros WHERE nomemembro ='{}'".format(nomemembro)
+codigomembro = input('Digite o codigo. ')
+seleciona = "SELECT * FROM membros WHERE idmembro ='{}'".format(codigomembro)
 cursor = con.cursor()
 cursor.execute(seleciona)
 linhas = cursor.fetchall()
-if len(linhas) == 0:  # Verifica se o retorno contém alguma linha
+if len(linhas) >= 1:  # Verifica se o retorno contém alguma linha
+	nomemembro = input ('Digite o nome do membro: ')
 	telmembro = input('Digite o número do Telefone Celular: ')
 	try:
 		if len(telmembro) != 11:
@@ -82,16 +83,16 @@ if len(linhas) == 0:  # Verifica se o retorno contém alguma linha
 	sanguemembro = input('Digite o tipo sanguineo. ')
 	data_cadastro = datetime.today().strftime('%d-%m-%y')
 
-	inserir = """INSERT INTO membros
+	alterar = """UPDATE membros SET
 							( nomemembro, telmembro, enderecomembro, nascimentomembro, candidaturamembro, emergenciamembro, sanguemembro, data_cadastro) 
-							values (%s, %s, %s, %s, %s, %s, %s,%s);						
+							values (%s, %s, %s, %s, %s, %s, %s,%s) WHERE idmembro =(%s);						
 							"""
 	sql_data = (
 	nomemembro, telFormatado, enderecomembro, data_formatada, data_formatadacand, telemerFormatado, sanguemembro,
-	data_cadastro)
+	data_cadastro, codigomembro)
 
 	cursor = con.cursor()
-	cursor.execute(inserir, sql_data)
+	cursor.execute(alterar, sql_data)
 	con.commit()
 	print(cursor.rowcount, 'Registro inserido com sucesso.\n')
 	cursor.close()
@@ -99,5 +100,5 @@ if len(linhas) == 0:  # Verifica se o retorno contém alguma linha
 else:
 	print('Nome ja existe no cadastro')
 
-import menu_principal
+import tela_menu_principal
 

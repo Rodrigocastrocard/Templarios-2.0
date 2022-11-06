@@ -2,7 +2,8 @@ from tkinter import*
 
 def cadastra_membro():
     janela.destroy()
-    import cadastra_membro
+    import tela_cadastra_membro
+
 def altera_membro():
     janela.destroy()
     import altera_membro

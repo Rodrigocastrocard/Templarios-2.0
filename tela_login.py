@@ -1,61 +1,73 @@
-from tkinter import *
+import datetime
 import mysql.connector
+from mysql.connector import Error
+from datetime import datetime
+from tkinter import*
+import tkinter as tk
+
 con = mysql.connector.connect(host='localhost', database='templarios', user='root', password='Janete4353')
 
-
-master = Tk()
-master.title('Login')
-master.geometry("500x560+450+100")
-
-
-
-#abrir nova janela
-
-
-
-# variaveis Globais
-esconda_senha = StringVar()
+def entrar():
+    tela.destroy()
+    import tela_menu_principal
 
 
 
 
-#importar imagens
-img_fundo = PhotoImage(file="images\\usuario.png")
-img_botao = PhotoImage(file="images\\entrar.png")
-
-#criacao de labels
-
-lab_fundo=Label(master, image=img_fundo)
-lab_fundo.pack()
-
-#criacao de caixas de entrada
-en_usuario = Entry(master, bd=2, font=("Calibri",15),justify=CENTER)
-en_usuario.place(width=410, height=45, x=45, y=170)
-
-en_senha = Entry(master, textvariable=esconda_senha, show="*", bd=2, font=("Calibri",15),justify=CENTER)
-en_senha.place(width=410, height=45, x=45, y=255)
+tela = Tk()
+tela.title('Tela de Login')
+tela.geometry('400x300')
 
 
-def valida_credencial():
-    consulta_sql = "select * from usuarios "
+def validar():
+    usuario = entry_nomeusuario.get()
+    senha = entry_senha.get()
+    senha2 = tuple(senha)
+
+    busca = """select * from usuarios where usuario_senha = (%s)"""
+    condicao = (senha2)
+
     cursor = con.cursor()
-    cursor.execute(consulta_sql)
+    cursor.execute(busca, condicao)
+    con.commit()
     linhas = cursor.fetchall()
-    if len(linhas) == 1:  # Verifica se o retorno contém alguma linha
-        master.destroy()
+    print(linhas)
+    cursor.close()
+
+    if linhas == (senha2):  # Verifica se o retorno contém alguma linha
+        tela.destroy()
         import tela_menu_principal
 
     else:
         print('Usuário ou senha inválido !')
 
+campo1 = tk.Label(text="USUARIO")
+campo1.grid(row=1, column=0,padx = 10, pady=10, sticky='nswe', columnspan =4 )
+entry_nomeusuario = tk.Entry()
+entry_nomeusuario.grid(row=1,column=2, padx=150, pady=15, sticky='nswe', columnspan = 4)
+
+campo2 = tk.Label(text="SENHA")
+campo2.grid(row=2, column=0,padx = 10, pady=10, sticky='nswe', columnspan =4 )
+entry_senha = tk.Entry()
+entry_senha.grid(row=2,column=2, padx=150, pady=15, sticky='nswe', columnspan = 4)
 
     #criacao de botões
-en_botao = Button(master, bd=0, image=img_botao, command=valida_credencial)
-en_botao.place(width=87, height=51, x=206, y=450)
+entrar_botao = Button(tela, bd=0, text='ENTRAR', command=validar)
+entrar_botao.place(width=87, height=51, x=100, y=180)
+
+sair_botao = Button(tela, bd=0, text='SAIR', command=tela.destroy)
+sair_botao.place(width=87, height=51, x=200, y=180)
 
 
 
 
 
 
-master.mainloop()
+
+tela.mainloop()
+
+
+
+
+
+
