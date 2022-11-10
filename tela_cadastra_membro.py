@@ -1,9 +1,9 @@
 import datetime
 import mysql.connector
-from mysql.connector import Error
 from datetime import datetime
 from tkinter import*
 import tkinter as tk
+from tkinter import messagebox
 
 con = mysql.connector.connect(host='localhost', database='templarios', user='root', password='Janete4353')
 
@@ -18,6 +18,14 @@ tela.title('Cadastro de Entidade')
 tela.state("zoomed")
 
 
+def limpar_campos():
+    entry_nomemembro.delete(0, END)
+    entry_telformatado.delete(0, END)
+    entry_endereco.delete(0, END)
+    entry_nascimento.delete(0, END)
+    entry_candidatura.delete(0, END)
+    entry_telemformatado.delete(0, END)
+    entry_sangue.delete(0, END)
 
 def salvar():
     nomemembro = entry_nomemembro.get()
@@ -44,8 +52,9 @@ def salvar():
     con.commit()
     print(cursor.rowcount, 'Registro inserido com sucesso.\n')
     cursor.close()
-    tela.destroy()
-    import tela_menu_cadastro
+    messagebox.showinfo('ALERTA', \
+                        'Registro inserido com sucesso !')
+    limpar_campos()
 
 
 campo1 = tk.Label(text="Nome")
@@ -98,6 +107,8 @@ salvar_botao.place(width=87, height=51, x=100, y=600)
 voltar_botao = Button(tela, bd=0, text='VOLTAR', command=voltar)
 voltar_botao.place(width=87, height=51, x=200, y=600)
 
+limpar_botao = Button(tela, bd=0, text='LIMPAR', command=limpar_campos)
+limpar_botao.place(width=87, height=51, x=300, y=600)
 
 
 tela.mainloop()

@@ -34,7 +34,7 @@ def validar():
     print(linhas)
     cursor.close()
 
-    if linhas == (senha2):  # Verifica se o retorno contém alguma linha
+    if len(linhas) >= 1:  # Verifica se o retorno contém alguma linha
         tela.destroy()
         import tela_menu_principal
 

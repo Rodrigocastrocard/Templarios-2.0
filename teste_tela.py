@@ -7,73 +7,46 @@ from reportlab.pdfbase import  pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import  SimpleDocTemplate,Image
 import  webbrowser
+import datetime
+import mysql.connector
+from mysql.connector import Error
+from datetime import datetime
+from tkinter import*
+import tkinter as tk
+from tkinter import messagebox
+
 
 root = Tk()
 
-class Relatorios():
-    def mostrar(self):
-        webbrowser.open('ficha_Cliente_'+self.nomerel+'.pdf')
-    def Gerar_Ficha(self):
-
-        self.codigorel = self.entry_codigo.get()
-        self.nomerel = self.entry_nome.get()
-        self.telefonerel = self.entry_telfone.get()
-        self.cidaderel = self.entry_cidade.get()
-
-        self.ficha_cliente = canvas.Canvas('ficha_Cliente_'+self.nomerel+'.pdf')
-
-        self.ficha_cliente.setFont("Helvetica-Bold",20)
-        self.ficha_cliente.drawString(200,780,'FICHA DO CLIENTE')
-
-        self.ficha_cliente.setFont("Helvetica-Bold",20)
-        self.ficha_cliente.drawString(50,680,'Código: '+self.codigorel)
-        self.ficha_cliente.drawString(50, 650, 'Nome: ' + self.nomerel)
-        self.ficha_cliente.drawString(50, 620, 'Telefone: ' + self.telefonerel)
-        self.ficha_cliente.drawString(50, 590, 'Cidade: ' + self.cidaderel)
-
-        self.ficha_cliente.rect(20,430,550,400, fill=False,stroke=True)
-
-
-
-        self.ficha_cliente.showPage()
-        self.ficha_cliente.save()
-        self.mostrar()
 
 class Funcoes():
 
     def limpar_campos(self):
-        self.entry_codigo.delete(0, END)
-        self.entry_nome.delete(0, END)
-        self.entry_telfone.delete(0, END)
-        self.entry_cidade.delete(0, END)
+        self.entry_nomemembro.delete(0, END)
+        self.entry_telformatado.delete(0, END)
+        self.entry_endereco.delete(0, END)
+        self.entry_nascimento.delete(0, END)
+        self.entry_candidatura.delete(0, END)
+        self.entry_telemformatado.delete(0, END)
+        self.entry_sangue.delete(0, END)
     def db_conect(self):
-        self.conexao = sqlite3.connect('clientes_bd.bd')
+        self.conexao = mysql.connector.connect(host='localhost', database='templarios', user='root', password='Janete4353')
         self.cursor = self.conexao.cursor()
         print("conectando ao banco de dados");
     def db_desconect(self):
-        self.conexao.close();print("Desconectando ao banco de dados sqlite3");
-    def criar_tabela(self):
-        self.db_conect();
-        #Criando uma tabela se ela não existir
-        self.cursor.execute("""
-        CREATE TABLE IF NOT EXISTS clientes(
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            Nome VARCHAR(50) NOT NULL,
-            telefone INTEGER(11) NOT NULL,
-            cidade VARCHAR(40));""");
-        self.conexao.commit(); print("banco de dados criado");
-        self.db_desconect()
+        self.conexao.close();print("Desconectando ao banco de dados");
+
     def capturar_campos(self):
-        self.codigo = self.entry_codigo.get()
-        self.nome = self.entry_nome.get()
-        self.telefone = self.entry_telfone.get()
-        self.cidade = self.entry_cidade.get()
+        self.nomemembro = self.entry_nomemembro.get()
+        self.telmembro = self.entry_telmembro.get()
+        self.enderecomembro = self.entry_enderecomembro.get()
+        self.nascimentomembro = self.entry_nascimemtomembro.get()
     def add_cliente(self):
         #obter dados dos campos
         self.capturar_campos()
         self.db_conect()
-        self.cursor.execute("""INSERT INTO clientes (nome,telefone,cidade) 
-        VALUES(?,?,?)""",(self.nome,self.telefone,self.cidade))
+        self.cursor.execute("""INSERT INTO membros (nomemembro,telmembro,enderecomembro) 
+        VALUES(?,?,?)""",(self.nomemembro,self.telmembro,self.enderecomembro))
         self.conexao.commit()
         self.db_desconect()
         self.select_lista()
@@ -81,7 +54,7 @@ class Funcoes():
     def select_lista(self):
         self.lista_grid.delete(*self.lista_grid.get_children())
         self.db_conect()
-        lista = self.cursor.execute("""SELECT id , nome,telefone,cidade
+        lista = self.cursor.execute("""SELECT idmembro , nomemembro,telmembro,nascimentomembro
          FROM clientes ORDER BY nome ASC;""")
         for l in lista:
             self.lista_grid.insert("",END,values=l)
@@ -92,14 +65,14 @@ class Funcoes():
 
         for x in self.lista_grid.selection():
             col1,col2,col3,col4 = self.lista_grid.item(x,'values')
-            self.entry_codigo.insert(END, col1)
-            self.entry_nome.insert(END, col2)
-            self.entry_telfone.insert(END, col3)
-            self.entry_cidade.insert(END, col4)
+            self.entry_nomemembro.insert(END, col1)
+            self.entry_telmembro.insert(END, col2)
+            self.entry_telmembro.insert(END, col3)
+            self.entry_nascimentomembro.insert(END, col4)
     def deleta_cliente(self):
         self.capturar_campos()
         self.db_conect()
-        self.cursor.execute("""DELETE FROM clientes WHERE id = ?""",(self.codigo))
+        self.cursor.execute("""DELETE FROM membros WHERE idmembro = ?""",(self.codigomembro))
         self.conexao.commit()
         self.db_desconect()
         self.limpar_campos()
@@ -108,9 +81,9 @@ class Funcoes():
     def alterar_cliente(self):
         self.capturar_campos()
         self.db_conect()
-        self.cursor.execute("""UPDATE clientes SET nome = ?, telefone = ?, cidade = ? 
-        WHERE id = ?;
-        """,(self.nome,self.telefone,self.cidade,self.codigo))
+        self.cursor.execute("""UPDATE membros SET nomemembro = ?, telmembro = ?, nascimentomembro = ? 
+        WHERE idmembro = ?;
+        """,(self.nomemembro,self.telmembro,self.nascimentomembro,self.codigomembro))
         self.conexao.commit()
         self.db_desconect()
         self.limpar_campos()
@@ -120,9 +93,9 @@ class Funcoes():
         self.db_conect()
         self.lista_grid.delete(*self.lista_grid.get_children())
 
-        self.entry_nome.insert(END,'%')
-        nome = '%'+self.entry_nome.get()
-        self.cursor.execute("""SELECT * FROM clientes WHERE Nome LIKE '%s' COLLATE NOCASE ORDER BY Nome ASC"""%nome)
+        self.entry_nomemembro.insert(END,'%')
+        nome = '%'+self.entry_nomemembro.get()
+        self.cursor.execute("""SELECT * FROM membros WHERE nomemembro LIKE '%s' COLLATE NOCASE ORDER BY Nome ASC"""%nome)
         Resultado_busca = self.cursor.fetchall()
 
         for cliente in Resultado_busca:
@@ -134,7 +107,7 @@ class Funcoes():
 
 
 
-class Aplication(Funcoes,Relatorios):
+class Aplication(Funcoes):
     def __init__(self):
         self.root = root
         self.tela()
