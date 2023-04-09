@@ -1,21 +1,65 @@
 import datetime
 import mysql.connector
 from datetime import datetime
-from tkinter import*
-import tkinter as tk
+from tkinter import *
 from tkinter import messagebox
+import tkinter as tk
+from tkinter import ttk
+from tkinter.messagebox import showinfo
+import pandas as pd
 
-con = mysql.connector.connect(host='localhost', database='templarios', user='root', password='Janete4353')
+con = mysql.connector.connect(host='localhost',
+                             database='templarios',
+                             user='root',
+                             password='Janete4353',
+                             auth_plugin='mysql_native_password')
+tela = Tk()
+tela.title('Cadastro de Membros')
+tela.state("zoomed")
+
+# define columns
+columns = ('codigo', 'nome', 'aniversario', 'ativo')
+
+tree = ttk.Treeview(tela, columns=columns, show='headings')
+
+# define campos
+tree.heading('codigo', text='Codigo')
+tree.heading('nome', text='Nome')
+tree.heading('aniversario', text='Aniversário')
+tree.heading('ativo', text='Ativo?')
+
+# gera query
+membros = []
+consulta_sql = """select idmembro, nomemembro, nascimentomembro, ativomembro from membros order by nascimentomembro asc"""
+cursor = con.cursor()
+cursor.execute(consulta_sql)
+linhas = cursor.fetchall()
+
+
+# mostra consulta
+for linha in linhas:
+    tree.insert('', tk.END, values=linha)
+
+def item_selected(event):
+    for selected_item in tree.selection():
+        item = tree.item(selected_item)
+        record = item['values']
+        # show a message
+        showinfo(title='Information', message=','.join(record))
+
+tree.bind('<<TreeviewSelect>>', item_selected)
+
+tree.grid(row=8, column=20, sticky='nsew')
+
+# add barra de rolagem
+scrollbar = ttk.Scrollbar(tela, orient=tk.VERTICAL, command=tree.yview)
+tree.configure(yscroll=scrollbar.set)
+scrollbar.grid(row=8, column=21, sticky='ns')
+
 
 def voltar():
     tela.destroy()
     import tela_menu_cadastro
-
-
-
-tela = Tk()
-tela.title('Cadastro de Entidade')
-tela.state("zoomed")
 
 
 def limpar_campos():
@@ -50,11 +94,37 @@ def salvar():
     cursor = con.cursor()
     cursor.execute(inserir, sql_data)
     con.commit()
-    print(cursor.rowcount, 'Registro inserido com sucesso.\n')
     cursor.close()
     messagebox.showinfo('ALERTA', \
                         'Registro inserido com sucesso !')
     limpar_campos()
+
+
+
+# exportar relatorios
+def exportar():
+    consulta=('''select * from membros''')
+    cursor = con.cursor()
+    cursor.execute(consulta)
+    result = cursor.fetchall()
+    print (result)
+    data = {'Codigo': [result,0],
+            'Nome': [result,1],
+            'telefone': [result,2],
+            'Endereço': [result,3],
+            'Data de Nascimento': [result,4],
+            'Data de Candidatura': [result,5],
+            'Telefone de Emergencia': [result,6],
+            'Tipo Sanguineo': [result,7],
+            'Ativo':[result,8],
+            'Data de Cadastro': [result,9],
+            }
+
+    df = pd.DataFrame(data)
+
+    df.to_excel(r'C:\Users\Rodrigo Cardoso\Downloads\Cadastro de Membros.xlsx', index=False)
+    messagebox.showinfo('ALERTA', \
+                        'Registro exportado com sucesso !')
 
 
 campo1 = tk.Label(text="Nome")
@@ -92,23 +162,32 @@ campo7.grid(row=7, column=0,padx = 10, pady=10, sticky='nswe', columnspan =4 )
 entry_sangue = tk.Entry()
 entry_sangue.grid(row=7,column=2, padx=150, pady=15, sticky='nswe', columnspan = 4)
 
+campo8 = tk.Label(text="Ativo")
+campo8.grid(row=7, column=0,padx = 10, pady=10, sticky='nswe', columnspan =4 )
+entry_ativo = tk.Checkbutton()
+entry_ativo.grid(row=7,column=2, padx=150, pady=15, sticky='nswe', columnspan = 4)
+
+
 
     #criacao de botões
 
-#Quando clicar em salvar, tem que gravar as informações digitadas nas caixas
-
-sair_botao = Button(tela, bd=0, text='SAIR', command=tela.destroy)
-sair_botao.place(width=87, height=51, x=1150, y=600)
-
-
 salvar_botao = Button(tela, bd=0, text='SALVAR', command=salvar)
-salvar_botao.place(width=87, height=51, x=100, y=600)
-
-voltar_botao = Button(tela, bd=0, text='VOLTAR', command=voltar)
-voltar_botao.place(width=87, height=51, x=200, y=600)
+salvar_botao.place(width=87, height=51, x=50, y=350)
 
 limpar_botao = Button(tela, bd=0, text='LIMPAR', command=limpar_campos)
-limpar_botao.place(width=87, height=51, x=300, y=600)
+limpar_botao.place(width=87, height=51, x=150, y=350)
+
+relatorio_botao = Button(tela, bd=0, text='EXPORTAR', command=exportar)
+relatorio_botao.place(width=87, height=51, x=250, y=350)
+
+voltar_botao = Button(tela, bd=0, text='VOLTAR', command=voltar)
+voltar_botao.place(width=87, height=51, x=1050, y=10)
+
+sair_botao = Button(tela, bd=0, text='SAIR', command=tela.destroy)
+sair_botao.place(width=87, height=51, x=1150, y=10)
+
+
+
 
 
 tela.mainloop()

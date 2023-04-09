@@ -6,8 +6,11 @@ from tkinter import*
 import tkinter as tk
 from tkinter import messagebox
 
-con = mysql.connector.connect(host='localhost', database='templarios', user='root', password='Janete4353')
-
+con = mysql.connector.connect(host='localhost',
+                             database='templarios',
+                             user='root',
+                             password='Janete4353',
+                             auth_plugin='mysql_native_password')
 
 
 

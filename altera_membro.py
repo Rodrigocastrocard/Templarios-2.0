@@ -4,7 +4,12 @@ import mysql.connector
 from mysql.connector import Error
 from datetime import datetime
 
-con = mysql.connector.connect(host='localhost', database='templarios', user='root', password='Janete4353')
+con = mysql.connector.connect(host='localhost',
+                             database='templarios',
+                             user='root',
+                             password='Janete4353',
+                             auth_plugin='mysql_native_password')
+
 
 codigomembro = input('Digite o codigo. ')
 seleciona = "SELECT * FROM membros WHERE idmembro ='{}'".format(codigomembro)

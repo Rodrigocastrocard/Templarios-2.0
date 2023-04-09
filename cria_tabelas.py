@@ -1,13 +1,12 @@
-import datetime
-import pandas as pd
-import numpy as np
 import mysql.connector
-from mysql.connector import Error
-from datetime import datetime
 
 
-con = mysql.connector.connect(host='localhost', database='templarios', user='root', password='Janete4353')
 
+con = mysql.connector.connect(host='localhost',
+                             database='templarios',
+                             user='root',
+                             password='Janete4353',
+                             auth_plugin='mysql_native_password')
 
 criar_membros = """CREATE TABLE `templarios`.`membros` (
   `idmembro` INT NOT NULL AUTO_INCREMENT,

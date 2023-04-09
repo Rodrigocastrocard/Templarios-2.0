@@ -52,15 +52,11 @@ entry_senha = tk.Entry()
 entry_senha.grid(row=2,column=2, padx=150, pady=15, sticky='nswe', columnspan = 4)
 
     #criacao de botões
-entrar_botao = Button(tela, bd=0, text='ENTRAR', command=validar)
+entrar_botao = Button(tela, bd=0, text='ENTRAR', command=entrar)
 entrar_botao.place(width=87, height=51, x=100, y=180)
 
 sair_botao = Button(tela, bd=0, text='SAIR', command=tela.destroy)
 sair_botao.place(width=87, height=51, x=200, y=180)
-
-
-
-
 
 
 
