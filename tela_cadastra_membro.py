@@ -7,6 +7,8 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter.messagebox import showinfo
 import pandas as pd
+import openpyxl
+
 
 con = mysql.connector.connect(host='localhost',
                              database='templarios',
@@ -107,24 +109,56 @@ def exportar():
     cursor = con.cursor()
     cursor.execute(consulta)
     result = cursor.fetchall()
-    print (result)
-    data = {'Codigo': [result,0],
-            'Nome': [result,1],
-            'telefone': [result,2],
-            'Endereço': [result,3],
-            'Data de Nascimento': [result,4],
-            'Data de Candidatura': [result,5],
-            'Telefone de Emergencia': [result,6],
-            'Tipo Sanguineo': [result,7],
-            'Ativo':[result,8],
-            'Data de Cadastro': [result,9],
-            }
+    resultado = len(result)
+    col = 'Codigo Nome Telefone Endereco nascimento Candidatura Emergencia Sague Ativo Cadastro'.split()
 
-    df = pd.DataFrame(data)
+    dados = pd.DataFrame(data=result, index=result, columns=col)
 
-    df.to_excel(r'C:\Users\Rodrigo Cardoso\Downloads\Cadastro de Membros.xlsx', index=False)
+
+
+    df = pd.DataFrame(dados)
+
+    df.to_excel(r'C:\Users\Rodrigo Cardoso\Downloads\Cadastro de Membros.xlsx')
     messagebox.showinfo('ALERTA', \
-                        'Registro exportado com sucesso !')
+                        'Registros exportados com sucesso !')
+
+
+
+def importar():
+    messagebox.showinfo('ALERTA', \
+                        'Para importar, o arquivo deve estar na pasta C:')
+    book = openpyxl.load_workbook('planilha.xlsx')
+    pagina = book['Sheet']
+    for linha in pagina.iter_rows(min_row=2):
+        #print(f'{linha[0].value},{linha[1].value},{linha[2].value},{linha[3].value},{linha[4].value},{linha[5].value},{linha[6].value},{linha[7].value},{linha[8].value}')
+        nome_import = linha[2].value
+        telefone_import = linha[3].value
+        endereco_import = linha[4].value
+        nascimento_import = linha[5].value
+        candidatura_import = linha[6].value
+        emergencia_import = linha[7].value
+        sangue_import = linha[8].value
+        cadastra_import = datetime.today().strftime('%d-%m-%y')
+
+        print(nome_import,telefone_import,endereco_import,nascimento_import,candidatura_import,emergencia_import,sangue_import,cadastra_import)
+
+
+        inserir_import = """INSERT INTO membros
+           							( nomemembro, telmembro, enderecomembro, nascimentomembro, candidaturamembro, emergenciamembro, sanguemembro, data_cadastro)
+           							values (%s, %s, %s, %s, %s, %s, %s,%s);
+           							"""
+
+        sql_data_import = (
+            nome_import, telefone_import, endereco_import, nascimento_import, candidatura_import, emergencia_import,
+            sangue_import, cadastra_import)
+
+        cursor = con.cursor()
+        cursor.execute(inserir_import, sql_data_import)
+        con.commit()
+        cursor.close()
+    messagebox.showinfo('ALERTA', \
+                            'Registro inserido com sucesso !')
+
 
 
 campo1 = tk.Label(text="Nome")
@@ -172,13 +206,16 @@ entry_ativo.grid(row=7,column=2, padx=150, pady=15, sticky='nswe', columnspan = 
     #criacao de botões
 
 salvar_botao = Button(tela, bd=0, text='SALVAR', command=salvar)
-salvar_botao.place(width=87, height=51, x=50, y=350)
+salvar_botao.place(width=87, height=51, x=500, y=10)
 
 limpar_botao = Button(tela, bd=0, text='LIMPAR', command=limpar_campos)
-limpar_botao.place(width=87, height=51, x=150, y=350)
+limpar_botao.place(width=87, height=51, x=600, y=10)
 
 relatorio_botao = Button(tela, bd=0, text='EXPORTAR', command=exportar)
-relatorio_botao.place(width=87, height=51, x=250, y=350)
+relatorio_botao.place(width=87, height=51, x=700, y=10)
+
+relatorio_botao = Button(tela, bd=0, text='IMPORTAR', command=importar)
+relatorio_botao.place(width=87, height=51, x=800, y=10)
 
 voltar_botao = Button(tela, bd=0, text='VOLTAR', command=voltar)
 voltar_botao.place(width=87, height=51, x=1050, y=10)
